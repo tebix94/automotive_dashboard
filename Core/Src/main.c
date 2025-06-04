@@ -442,6 +442,7 @@ void bufferRenderingTaskHook(void const * argument)
 	TickType_t polling_ticks = pdMS_TO_TICKS(1000);
 	char speed_string[5];
 	char temperature_string[5];
+	char gps_buffer[128];
   /* Infinite loop */
   for(;;)
   {
@@ -449,13 +450,15 @@ void bufferRenderingTaskHook(void const * argument)
     osMutexWait(myMutex01Handle, osWaitForever);
     itoa(dash_buffer.speed, speed_string, 10);
     itoa(dash_buffer.temperature, temperature_string, 10);
+    strncpy(gps_buffer, dash_buffer.GPS, sizeof(gps_buffer) - 1);
+    gps_buffer[sizeof(gps_buffer) - 1] = '\0'; // Ensure null-termination
     osMutexRelease(myMutex01Handle);
 
     HAL_UART_Transmit(&huart3, speed_string, sizeof(speed_string), 500);
     HAL_UART_Transmit(&huart3, " km/h\n", sizeof(" km/h\n"), 500);
     HAL_UART_Transmit(&huart3, temperature_string, sizeof(temperature_string), 500);
     HAL_UART_Transmit(&huart3, " Kelvin degrees\n", sizeof(" Kelvin degrees\n"), 500);
-    HAL_UART_Transmit(&huart3, dash_buffer.GPS, sizeof(dash_buffer.GPS), 500);
+    HAL_UART_Transmit(&huart3, gps_buffer, sizeof(gps_buffer), 500);
   }
   /* USER CODE END 5 */
 }
